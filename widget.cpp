@@ -19,7 +19,7 @@ Widget::Widget(QWidget *parent) :
     ui->btn3->setGeometry(850,1120,100,50);
     ui->content1->setGeometry(50,100,650,1000);
     QFont fff;
-    fff.setPointSize(12);
+    fff.setPointSize(10);
     ui->content1->setFont(fff);
     ui->content2->setGeometry(750,100,650,1000);
     ui->content2->setFont(fff);
@@ -34,6 +34,37 @@ Widget::Widget(QWidget *parent) :
     posit0 = buffer.find_first_of('5');
     route = buffer.substr(0,posit0+1);
     //cout<<route<<endl;
+
+    fstream fe,fine,func;
+    string pp1=route+"//human//equal.csv",pp2=route+"//human//inequal.csv",pp3=route+"//human//uncertain.csv";
+   // cout<<pp1<<" "<<pp2<<" "<<pp3<<endl;
+    if(access((route+"\\human").c_str(),0)==-1)
+         system(("md "+route+"\\human").c_str());
+
+    fe.open(pp1,ios::out);
+    if(!fe)
+    {
+        cout<<"error"<<endl;
+        exit(4);
+    }
+    fe << "file1,file2\n";
+    fe.close();
+    fine.open(pp2,ios::out);
+    if(!fine)
+    {
+        cout<<"error"<<endl;
+        exit(4);
+    }
+    fine << "file1,file2\n";
+    fine.close();
+    func.open(pp3,ios::out);
+    if(!func)
+    {
+        cout<<"error"<<endl;
+        exit(4);
+    }
+    func << "file1,file2\n";
+    func.close();
 
     fstream f1,f2;
     string path1 = route+"\\output\\equal.csv";
@@ -138,8 +169,10 @@ void Widget::start()
         fpath2 = route +"//" + equalpairs[equalind].file2;
         dirname = newdir;
 
-        ui->name1->append(QString::fromStdString(equalpairs[equalind].file1));
-        ui->name2->append(QString::fromStdString(equalpairs[equalind].file2));
+        tof1 = equalpairs[equalind].file1;
+        tof2 = equalpairs[equalind].file2;
+        ui->name1->append(QString::fromStdString(tof1));
+        ui->name2->append(QString::fromStdString(tof2));
 
         equalind++;
     }
@@ -153,8 +186,10 @@ void Widget::start()
         newdir = next.substr(p1+1,p2);
         dirname = newdir;
 
-        ui->name1->append(QString::fromStdString(inequalpairs[inequalind].file1));
-        ui->name2->append(QString::fromStdString(inequalpairs[inequalind].file2));
+        tof1 = inequalpairs[inequalind].file1;
+        tof2 = inequalpairs[inequalind].file2;
+        ui->name1->append(QString::fromStdString(tof1));
+        ui->name2->append(QString::fromStdString(tof2));
         inequalind++;
     }
 
@@ -213,19 +248,52 @@ void Widget::dealbutton()
     {
         QString Button_Text=Button_Pointer->text();
 
-        if(Button_Text != "OK")
+        if(Button_Text == "等价")
         {
+            fstream fe;
+            fe.open(route+"//human//equal.csv",ios::app);
+            if(!fe)
+            {
+                cout<<"error"<<endl;
+                exit(5);
+            }
+            fe << tof1<<","<<tof2<<"\n";
+            fe.close();
 
+        }
+        else if(Button_Text == "不等价")
+        {
+            fstream fine;
+            fine.open(route+"//human//inequal.csv",ios::app);
+            if(!fine)
+            {
+                cout<<"error"<<endl;
+                exit(5);
+            }
+            fine << tof1<<","<<tof2<<"\n";
+            fine.close();
         }
         else
         {
+            fstream func;
+            func.open(route+"//human//uncertain.csv",ios::app);
+            if(!func)
+            {
+                cout<<"error"<<endl;
+                exit(5);
+            }
+            func << tof1<<","<<tof2<<"\n";
+            func.close();
 
         }
    }
 
+    ui->content1->clear();
+    ui->content2->clear();
+    ui->name1->clear();
+    ui->name2->clear();
 
-        ui->content1->clear();
-        ui->content2->clear();
+    start();
 
 }
 

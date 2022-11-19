@@ -48,6 +48,9 @@ private:
 
     string dirname;
     string newdir;
+
+    string tof1;
+    string tof2;
 };
 
 #endif // WIDGET_H
