@@ -14,20 +14,23 @@ Widget::Widget(QWidget *parent) :
 
     this->setWindowTitle("等价确认工具");
 
-    setFixedSize(1500,1200);
-    ui->btn1->setGeometry(450,1120,100,50);
-    ui->btn2->setGeometry(650,1120,100,50);
-    ui->btn3->setGeometry(850,1120,100,50);
-    ui->content1->setGeometry(50,100,650,1000);
+    setFixedSize(1500,1000);
+    ui->btn1->setGeometry(450,920,100,50);
+    ui->btn2->setGeometry(650,920,100,50);
+    ui->btn3->setGeometry(850,920,100,50);
+    ui->content1->setGeometry(50,100,650,800);
     QFont fff;
-    fff.setPointSize(11);
+    fff.setPointSize(12);
     ui->content1->setFont(fff);
-    ui->content2->setGeometry(750,100,650,1000);
+    ui->content2->setGeometry(750,100,650,800);
     ui->content2->setFont(fff);
     ui->name1->setGeometry(50,30,400,50);
     ui->name1->setFont(fff);
     ui->name2->setGeometry(750,30,400,50);
     ui->name2->setFont(fff);
+    ui->btn1->setFont(fff);
+    ui->btn2->setFont(fff);
+    ui->btn3->setFont(fff);
 
     string buffer;
     buffer = getcwd(NULL,0);
@@ -155,12 +158,26 @@ Widget::~Widget()
     delete ui;
 }
 
+string Widget::removeblank(string s)
+{
+    int index = 0;
+    if( !s.empty())
+    {
+        while( (index = s.find(' ',index)) != string::npos)
+        {
+            s.erase(index,1);
+        }
+    }
+    return s;
+}
+
 
 void Widget::start()
 {
     if(equalind>=equalpairs.size()-1&&inequalind>=inequalpairs.size()-1)
     {
-        QMessageBox::about(this,"","已判断完成");
+        QMessageBox::about(this,"提示","已判断完成");
+        this->close();
         return;
     }
 
@@ -245,9 +262,10 @@ void Widget::start()
     for(int i=0;i<fcontext1.size();i++)
     {
         bool same = 0;
+        string s=removeblank(fcontext1[i]);
         for(int j=0;j<fcontext2.size();j++)
         {
-            if(fcontext1[i]==fcontext2[j])
+            if(s==removeblank(fcontext2[j]))
             {
                 same=1;
                 break;
@@ -260,9 +278,10 @@ void Widget::start()
     for(int i=0;i<fcontext2.size();i++)
     {
         bool same = 0;
+        string s=removeblank(fcontext2[i]);
         for(int j=0;j<fcontext1.size();j++)
         {
-            if(fcontext2[i]==fcontext1[j])
+            if(s==removeblank(fcontext1[j]))
             {
                 same=1;
                 break;

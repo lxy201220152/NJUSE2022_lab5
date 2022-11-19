@@ -34,6 +34,7 @@ public:
     ~Widget();
 
     void start();
+    string removeblank(string);
 
 public slots:
     void dealbutton();
