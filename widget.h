@@ -43,12 +43,7 @@ private:
     Ui::Widget *ui;
 
     int equalind;
-    int inequalind;
-    int judge;
     string route;
-
-    string dirname;
-    string newdir;
 
     string tof1;
     string tof2;

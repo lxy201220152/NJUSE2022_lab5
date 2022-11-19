@@ -4,7 +4,6 @@
 #include <QMessageBox>
 
 vector<Pair>equalpairs;
-vector<Pair>inequalpairs;
 
 Widget::Widget(QWidget *parent) :
     QWidget(parent),
@@ -70,11 +69,10 @@ Widget::Widget(QWidget *parent) :
     func << "file1,file2\n";
     func.close();
 
-    fstream f1,f2;
+    fstream f1;
     string path1 = route+"\\output\\equal.csv";
     //cout<<path1<<endl;
-    string path2 = route+"\\output\\inequal.csv";
-    //cout<<path2<<endl;
+
     f1.open(path1,ios::in);
     if(!f1)
     {
@@ -106,49 +104,11 @@ Widget::Widget(QWidget *parent) :
     }
     f1.close();
 
-    f2.open(path2,ios::in);
-    if(!f2)
-    {
-        cout<<"f2 error"<<endl;
-        exit(1);
-    }
-    flag = 0;
-    while(!f2.eof())
-    {
-        string str;
-        f2 >> str;
-
-        if(flag == 0)
-        {
-            flag = 1;
-            continue;
-        }
-        else
-        {
-            string::size_type posit;
-            posit = str.find_first_of(",");
-
-            Pair newpair;
-            newpair.file1 = str.substr(0,posit);
-            newpair.file2 = str.substr(posit+1, str.length());
-
-            inequalpairs.push_back(newpair);
-        }
-    }
-    f2.close();
-
-    judge = 1;
     equalind = 0;
-    inequalind = 0;
 
     connect(ui->btn1,&QPushButton::pressed,this,&Widget::dealbutton);
     connect(ui->btn2,&QPushButton::pressed,this,&Widget::dealbutton);
     connect(ui->btn3,&QPushButton::pressed,this,&Widget::dealbutton);
-
-    string n = inequalpairs[inequalind].file1;
-    string::size_type p1 = n.find_first_of("/");
-    string::size_type p2 = n.find_last_of("/");
-    dirname = n.substr(p1+1,p2-p1-1);
 
     start();
 }
@@ -174,61 +134,44 @@ string Widget::removeblank(string s)
 
 void Widget::start()
 {
-    if(equalind>=equalpairs.size()-1&&inequalind>=inequalpairs.size()-1)
+    if(equalind>=equalpairs.size()-1)
     {
         QMessageBox::about(this,"提示","已判断完成");
-        this->close();
+        //this->close();
+        fstream f;
+        f.open(route+"\\human\\equal.csv",ios::in);
+        if(!f)
+        {
+            cout<<"f error"<<endl;
+            exit(6);
+        }
+        ui->name1->append("等价程序对");
+        while(!f.eof())
+        {
+            string str;
+            f >> str;
+
+            ui->content1->append(QString::fromStdString(str));
+        }
+        f.close();
         return;
     }
 
     string fpath1,fpath2;
-    string next = equalpairs[equalind].file1;
-    string::size_type p1 = next.find_first_of("/");
-    string::size_type p2 = next.find_last_of("/");
-    newdir = next.substr(p1+1,p2-p1-1);
+    fpath1 = route + "//" + equalpairs[equalind].file1;
+    fpath2 = route +"//" + equalpairs[equalind].file2;
 
-    //cout<<newdir<<" "<<dirname<<endl;
+    tof1 = equalpairs[equalind].file1;
+    tof2 = equalpairs[equalind].file2;
+    ui->name1->append(QString::fromStdString(tof1));
+    ui->name2->append(QString::fromStdString(tof2));
 
-    if((judge == 0 && newdir==dirname && equalind<equalpairs.size()-1)||(equalind<equalpairs.size()-1&&inequalind>=equalpairs.size()-1))
-    {
-        //cout<<equalind<<" "<<equalpairs.size()<<endl;
-
-        fpath1 = route + "//" + equalpairs[equalind].file1;
-        fpath2 = route +"//" + equalpairs[equalind].file2;
-        dirname = newdir;
-
-        tof1 = equalpairs[equalind].file1;
-        tof2 = equalpairs[equalind].file2;
-        ui->name1->append(QString::fromStdString(tof1));
-        ui->name2->append(QString::fromStdString(tof2));
-
-        equalind++;
-    }
-    else
-    {
-        fpath1 = route + "//" + inequalpairs[inequalind].file1;
-        fpath2 = route +"//" + inequalpairs[inequalind].file2;
-        next = inequalpairs[inequalind].file1;
-        string::size_type p1 = next.find_first_of("/");
-        string::size_type p2 = next.find_last_of("/");
-        dirname = newdir;
-        newdir = next.substr(p1+1,p2-p1-1);
-
-        //cout<<dirname<<" "<<newdir<<endl;
-
-        tof1 = inequalpairs[inequalind].file1;
-        tof2 = inequalpairs[inequalind].file2;
-        ui->name1->append(QString::fromStdString(tof1));
-        ui->name2->append(QString::fromStdString(tof2));
-        inequalind++;
-    }
+    equalind++;
 
     if(tof1==""||tof2=="")
         return;
 
     fstream file1, file2;
-    cout<<equalind <<inequalind<<fpath1<<endl;
-    cout<<equalind<< inequalind<<fpath2<<endl;
 
     vector<string> fcontext1;
     vector<string> fcontext2;
@@ -336,6 +279,8 @@ void Widget::dealbutton()
     if(Button_Pointer!=nullptr)
     {
         QString Button_Text=Button_Pointer->text();
+        if(ui->name1->toPlainText()=="等价程序对")
+            return;
 
         if(Button_Text == "等价")
         {
@@ -349,7 +294,6 @@ void Widget::dealbutton()
             fe << tof1<<","<<tof2<<"\n";
             fe.close();
 
-            judge = 0;
 
         }
         else if(Button_Text == "不等价")
@@ -363,8 +307,6 @@ void Widget::dealbutton()
             }
             fine << tof1<<","<<tof2<<"\n";
             fine.close();
-
-            judge = 1;
         }
         else
         {
@@ -377,8 +319,6 @@ void Widget::dealbutton()
             }
             func << tof1<<","<<tof2<<"\n";
             func.close();
-
-            judge = 1;
 
         }
    }
