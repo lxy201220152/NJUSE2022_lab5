@@ -1,6 +1,7 @@
 #include "widget.h"
 #include "ui_widget.h"
 #include <windows.h>
+#include <QMessageBox>
 
 vector<Pair>equalpairs;
 vector<Pair>inequalpairs;
@@ -144,7 +145,7 @@ Widget::Widget(QWidget *parent) :
     string n = inequalpairs[inequalind].file1;
     string::size_type p1 = n.find_first_of("/");
     string::size_type p2 = n.find_last_of("/");
-    dirname = n.substr(p1+1,p2);
+    dirname = n.substr(p1+1,p2-p1-1);
 
     start();
 }
@@ -157,14 +158,24 @@ Widget::~Widget()
 
 void Widget::start()
 {
+    if(equalind>=equalpairs.size()-1&&inequalind>=inequalpairs.size()-1)
+    {
+        QMessageBox::about(this,"","已判断完成");
+        return;
+    }
+
     string fpath1,fpath2;
     string next = equalpairs[equalind].file1;
     string::size_type p1 = next.find_first_of("/");
     string::size_type p2 = next.find_last_of("/");
-    newdir = next.substr(p1+1,p2);
+    newdir = next.substr(p1+1,p2-p1-1);
 
-    if(judge == 0 && newdir==dirname)
+    //cout<<newdir<<" "<<dirname<<endl;
+
+    if((judge == 0 && newdir==dirname && equalind<equalpairs.size()-1)||(equalind<equalpairs.size()-1&&inequalind>=equalpairs.size()-1))
     {
+        //cout<<equalind<<" "<<equalpairs.size()<<endl;
+
         fpath1 = route + "//" + equalpairs[equalind].file1;
         fpath2 = route +"//" + equalpairs[equalind].file2;
         dirname = newdir;
@@ -183,8 +194,10 @@ void Widget::start()
         next = inequalpairs[inequalind].file1;
         string::size_type p1 = next.find_first_of("/");
         string::size_type p2 = next.find_last_of("/");
-        newdir = next.substr(p1+1,p2);
         dirname = newdir;
+        newdir = next.substr(p1+1,p2-p1-1);
+
+        //cout<<dirname<<" "<<newdir<<endl;
 
         tof1 = inequalpairs[inequalind].file1;
         tof2 = inequalpairs[inequalind].file2;
@@ -193,9 +206,12 @@ void Widget::start()
         inequalind++;
     }
 
+    if(tof1==""||tof2=="")
+        return;
+
     fstream file1, file2;
-    cout<<fpath1<<endl;
-    cout<<fpath2<<endl;
+    cout<<equalind <<inequalind<<fpath1<<endl;
+    cout<<equalind<< inequalind<<fpath2<<endl;
 
     vector<string> fcontext1;
     vector<string> fcontext2;
@@ -260,6 +276,8 @@ void Widget::dealbutton()
             fe << tof1<<","<<tof2<<"\n";
             fe.close();
 
+            judge = 0;
+
         }
         else if(Button_Text == "不等价")
         {
@@ -272,6 +290,8 @@ void Widget::dealbutton()
             }
             fine << tof1<<","<<tof2<<"\n";
             fine.close();
+
+            judge = 1;
         }
         else
         {
@@ -284,6 +304,8 @@ void Widget::dealbutton()
             }
             func << tof1<<","<<tof2<<"\n";
             func.close();
+
+            judge = 1;
 
         }
    }
