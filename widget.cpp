@@ -18,9 +18,15 @@ Widget::Widget(QWidget *parent) :
     ui->btn2->setGeometry(650,1120,100,50);
     ui->btn3->setGeometry(850,1120,100,50);
     ui->content1->setGeometry(50,100,650,1000);
+    QFont fff;
+    fff.setPointSize(12);
+    ui->content1->setFont(fff);
     ui->content2->setGeometry(750,100,650,1000);
-    ui->name1->setGeometry(50,30,300,50);
-    ui->name2->setGeometry(750,30,300,50);
+    ui->content2->setFont(fff);
+    ui->name1->setGeometry(50,30,400,50);
+    ui->name1->setFont(fff);
+    ui->name2->setGeometry(750,30,400,50);
+    ui->name2->setFont(fff);
 
     string buffer;
     buffer = getcwd(NULL,0);
@@ -104,6 +110,12 @@ Widget::Widget(QWidget *parent) :
     connect(ui->btn2,&QPushButton::pressed,this,&Widget::dealbutton);
     connect(ui->btn3,&QPushButton::pressed,this,&Widget::dealbutton);
 
+    string n = inequalpairs[inequalind].file1;
+    string::size_type p1 = n.find_first_of("/");
+    string::size_type p2 = n.find_last_of("/");
+    dirname = n.substr(p1+1,p2);
+
+    start();
 }
 
 Widget::~Widget()
@@ -113,52 +125,82 @@ Widget::~Widget()
 
 
 void Widget::start()
-{/*
+{
     string fpath1,fpath2;
-    if(judge == 0)
+    string next = equalpairs[equalind].file1;
+    string::size_type p1 = next.find_first_of("/");
+    string::size_type p2 = next.find_last_of("/");
+    newdir = next.substr(p1+1,p2);
+
+    if(judge == 0 && newdir==dirname)
     {
-        fpath1 = route + "//" + equalpairs[equalind].file1 ;
+        fpath1 = route + "//" + equalpairs[equalind].file1;
         fpath2 = route +"//" + equalpairs[equalind].file2;
+        dirname = newdir;
+
+        ui->name1->append(QString::fromStdString(equalpairs[equalind].file1));
+        ui->name2->append(QString::fromStdString(equalpairs[equalind].file2));
+
         equalind++;
     }
     else
     {
-        fpath1 = route + "//" + inequalpairs[inequalind].file1 ;
+        fpath1 = route + "//" + inequalpairs[inequalind].file1;
         fpath2 = route +"//" + inequalpairs[inequalind].file2;
+        next = inequalpairs[inequalind].file1;
+        string::size_type p1 = next.find_first_of("/");
+        string::size_type p2 = next.find_last_of("/");
+        newdir = next.substr(p1+1,p2);
+        dirname = newdir;
+
+        ui->name1->append(QString::fromStdString(inequalpairs[inequalind].file1));
+        ui->name2->append(QString::fromStdString(inequalpairs[inequalind].file2));
         inequalind++;
     }
 
     fstream file1, file2;
+    cout<<fpath1<<endl;
+    cout<<fpath2<<endl;
+
+    vector<string> fcontext1;
+    vector<string> fcontext2;
+
     file1.open(fpath1,ios::in);
     if(!file1)
     {
         cout<<"file1 error!"<<endl;
         exit(2);
     }
-    while(!file1.eof())
+
+    string fstr;
+    while(getline(file1, fstr))
     {
-
-        file1 >>
+        fcontext1.push_back(fstr);
     }
-
     file1.close();
 
     file2.open(fpath2,ios::in);
-
-
-
-
-    for(int i=0;i<equalpairs.size();i++)
+    if(!file2)
     {
-        QString tmp = QString::fromStdString(equalpairs[i].file1 + equalpairs[i].file2 + "\n");
+        cout<<"file2 error!"<<endl;
+        exit(2);
+    }
+    while(getline(file2, fstr))
+    {
+        fcontext2.push_back(fstr);
+    }
+    file2.close();
+
+    for(int i=0;i<fcontext1.size();i++)
+    {
+        QString tmp = QString::fromStdString(fcontext1[i]);
         ui->content1->append(tmp);
     }
-
-    for(int i=0;i<inequalpairs.size();i++)
+    for(int i=0;i<fcontext2.size();i++)
     {
-        QString tmp = QString::fromStdString(inequalpairs[i].file1 + inequalpairs[i].file2 + "\n");
+        QString tmp = QString::fromStdString(fcontext2[i]);
         ui->content2->append(tmp);
-    }*/
+    }
 
 }
 
@@ -185,7 +227,6 @@ void Widget::dealbutton()
         ui->content1->clear();
         ui->content2->clear();
 
-        start();
 }
 
 

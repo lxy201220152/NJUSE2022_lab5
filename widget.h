@@ -45,6 +45,9 @@ private:
     int inequalind;
     int judge;
     string route;
+
+    string dirname;
+    string newdir;
 };
 
 #endif // WIDGET_H
