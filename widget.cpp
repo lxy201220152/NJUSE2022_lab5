@@ -20,7 +20,7 @@ Widget::Widget(QWidget *parent) :
     ui->btn3->setGeometry(850,1120,100,50);
     ui->content1->setGeometry(50,100,650,1000);
     QFont fff;
-    fff.setPointSize(10);
+    fff.setPointSize(11);
     ui->content1->setFont(fff);
     ui->content2->setGeometry(750,100,650,1000);
     ui->content2->setFont(fff);
@@ -244,13 +244,67 @@ void Widget::start()
 
     for(int i=0;i<fcontext1.size();i++)
     {
-        QString tmp = QString::fromStdString(fcontext1[i]);
-        ui->content1->append(tmp);
+        bool same = 0;
+        for(int j=0;j<fcontext2.size();j++)
+        {
+            if(fcontext1[i]==fcontext2[j])
+            {
+                same=1;
+                break;
+            }
+        }
+        if(same==0)
+            fcontext1[i].append("**");
+    }
+
+    for(int i=0;i<fcontext2.size();i++)
+    {
+        bool same = 0;
+        for(int j=0;j<fcontext1.size();j++)
+        {
+            if(fcontext2[i]==fcontext1[j])
+            {
+                same=1;
+                break;
+            }
+        }
+        if(same==0)
+            fcontext2[i].append("**");
+    }
+
+
+    for(int i=0;i<fcontext1.size();i++)
+    {
+        if((fcontext1[i]).find("**")!=string::npos)
+        {
+            QString tmp = QString::fromStdString(fcontext1[i].substr(0,fcontext1[i].length()-2));
+            auto currentColor=ui->content1->textColor();
+            ui->content1->setTextColor(Qt::red);
+            ui->content1->append(tmp);
+            ui->content1->setTextColor(currentColor);
+        }
+        else
+        {
+            QString tmp = QString::fromStdString(fcontext1[i]);
+            ui->content1->append(tmp);
+        }
+
     }
     for(int i=0;i<fcontext2.size();i++)
     {
-        QString tmp = QString::fromStdString(fcontext2[i]);
-        ui->content2->append(tmp);
+        if((fcontext2[i]).find("**")!=string::npos)
+        {
+            QString tmp = QString::fromStdString(fcontext2[i].substr(0,fcontext2[i].length()-2));
+            auto currentColor=ui->content2->textColor();
+            ui->content2->setTextColor(Qt::red);
+            ui->content2->append(tmp);
+            ui->content2->setTextColor(currentColor);
+        }
+        else
+        {
+            QString tmp = QString::fromStdString(fcontext2[i]);
+            ui->content2->append(tmp);
+        }
     }
 
 }
